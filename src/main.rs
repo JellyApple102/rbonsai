@@ -1,13 +1,13 @@
 use ncurses::*;
 
+enum BranchType {
+    Trunk,
+    ShootLeft,
+    ShootRight,
+    Dying,
+    Dead
+}
+
 fn main() {
-    initscr();
-
-    addstr("Hello, World!");
-
-    refresh();
-
-    getch();
-
-    endwin();
+    // do stuff
 }
