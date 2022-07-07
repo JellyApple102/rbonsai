@@ -1,6 +1,8 @@
-use ncurses::*;
+#![allow(dead_code)]
 
-#[allow(dead_code)]
+use ncurses::*;
+use std::process::exit;
+
 enum BranchType {
     Trunk,
     ShootLeft,
@@ -9,21 +11,20 @@ enum BranchType {
     Dead
 }
 
-#[allow(dead_code)]
 struct Config {
-    live: u32,
-    infinite: u32,
-    screensaver: u32,
-    print_tree: u32,
-    verbosity: u32,
-    life_start: u32,
-    multiplier: u32,
-    base_type: u32,
-    seed: u32,
-    leaves_size: u32,
-    save: u32,
-    load: u32,
-    target_branch_count: u32,
+    live: i32,
+    infinite: i32,
+    screensaver: i32,
+    print_tree: i32,
+    verbosity: i32,
+    life_start: i32,
+    multiplier: i32,
+    base_type: i32,
+    seed: i32,
+    leaves_size: i32,
+    save: i32,
+    load: i32,
+    target_branch_count: i32,
 
     time_wait: f32,
     time_step: f32,
@@ -34,7 +35,6 @@ struct Config {
     load_file: String
 }
 
-#[allow(dead_code)]
 struct NcursesObjects {
     base_win: WINDOW,
     tree_win: WINDOW,
@@ -47,11 +47,26 @@ struct NcursesObjects {
     message_panel: PANEL
 }
 
-#[allow(dead_code)]
 struct Counters {
     branches: u32,
     shoots: u32,
     shoot_counter: u32
+}
+
+fn quit(conf: &Config, objects: &NcursesObjects, return_code: i32) {
+    del_panel(objects.base_panel);
+    del_panel(objects.tree_panel);
+    del_panel(objects.message_border_panel);
+    del_panel(objects.message_panel);
+
+    delwin(objects.base_win);
+    delwin(objects.tree_win);
+    delwin(objects.message_border_win);
+    delwin(objects.message_win);
+
+    // free conf.save_file and conf.load_file
+
+    exit(return_code)
 }
 
 fn main() {
