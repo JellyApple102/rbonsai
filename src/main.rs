@@ -28,10 +28,10 @@ struct Config {
     time_wait: f32,
     time_step: f32,
 
-    //message: &char,
-    //leaves: [&char; 64],
-    //save_file: &char,
-    //load_file: &char
+    message: String,
+    leaves: [char; 64],
+    save_file: String,
+    load_file: String
 }
 
 #[allow(dead_code)]
