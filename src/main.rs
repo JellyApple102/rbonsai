@@ -179,7 +179,7 @@ fn draw_base(base_win: WINDOW, base_type: i32) {
             wprintw(base_win, ")");
 
             mvwprintw(base_win, 1, 0, " (           ) ");
-            mvwprintw(base_win, 1, 0, "  (         )  ");
+            mvwprintw(base_win, 1, 0, "  (_________)  ");
         },
         _ => (),
     }
