@@ -117,6 +117,35 @@ fn finish(conf: &Config, my_counters: &Counters) {
     }
 }
 
+fn print_help() {
+    println!("Usage: rbonsai [option]...");
+    println!();
+    println!("rbonsai is a beautifully random bonsai tree generator.");
+    println!();
+    println!("Options:");
+    println!("  -l, --live             live mode: show each step of growth");
+    println!("  -t, --time=TIME        in live mode, wait TIME secs between");
+    println!("                           steps of growth (must be larger than 0) [default: 0.03]");
+    println!("  -i, --infinite         infinite mode: keep growing trees");
+    println!("  -w, --wait=TIME        in infinite mode, wait TIME secs between each tree");
+    println!("                           generation [default: 4.00]");
+    println!("  -S, --screensaver      screensaver mode; equivalent to -lie and");
+    println!("                           quit on any keypress");
+    println!("  -m, --message=STR      attach message next to the tree");
+    println!("  -b, --base=INT         acsii-art plant base to use, 0 is none");
+    println!("  -c, --leaf=LIST        list of comma-delimited strings randomly chosen");
+    println!("                           for leaves");
+    println!("  -M, --multiplier=INT   branch multiplier; higher -> more");
+    println!("                           branching (0-20) [default = 5]");
+    println!("  -L, --life=INT         life; higher -> more growth (0-200) [default: 32]");
+    println!("  -p, --print            print tree to terminal when finished");
+    println!("  -s, --seed=INT         seed random number generator");
+    println!("  -W, --save=FILE        save progress to file [default: $XDG_CACHE_HOME/rbonsai or $HOME/.cache/rbonsai]");
+    println!("  -C, --load=FILE        load progress from file [default: $XDG_CACHE_HOME/rbonsai or $HOME/.cache/rbonsai]");
+    println!("  -v, --verbose          increase output verbosity");
+    println!("  -h, --help             show help");
+}
+
 fn main() {
     let mut conf = Config {
         live: 0,
