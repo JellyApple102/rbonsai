@@ -146,6 +146,45 @@ fn print_help() {
     println!("  -h, --help             show help");
 }
 
+fn draw_base(base_win: WINDOW, base_type: i32) {
+    match base_type {
+        1 => {
+            wattron(base_win, A_BOLD() | COLOR_PAIR(8));
+            wprintw(base_win, ":");
+            wattron(base_win, COLOR_PAIR(2));
+            wprintw(base_win, "___________");
+            wattron(base_win, COLOR_PAIR(11));
+            wprintw(base_win, "./~~~\\.");
+            wattron(base_win, COLOR_PAIR(2));
+            wprintw(base_win, "___________");
+            wattron(base_win, COLOR_PAIR(8));
+            wprintw(base_win, ":");
+
+            mvwprintw(base_win, 1, 0, " \\                           / ");
+            mvwprintw(base_win, 2, 0, "  \\_________________________/ ");
+            mvwprintw(base_win, 3, 0, "  (_)                     (_)");
+
+            wattr_off(base_win, A_BOLD());
+        },
+        2 => {
+            wattron(base_win, COLOR_PAIR(8));
+            wprintw(base_win, "(");
+            wattron(base_win, COLOR_PAIR(2));
+            wprintw(base_win, "---");
+            wattron(base_win, COLOR_PAIR(11));
+            wprintw(base_win, "./~~~\\.");
+            wattron(base_win, COLOR_PAIR(2));
+            wprintw(base_win, "---");
+            wattron(base_win, COLOR_PAIR(8));
+            wprintw(base_win, ")");
+
+            mvwprintw(base_win, 1, 0, " (           ) ");
+            mvwprintw(base_win, 1, 0, "  (         )  ");
+        },
+        _ => (),
+    }
+}
+
 fn main() {
     let mut conf = Config {
         live: 0,
