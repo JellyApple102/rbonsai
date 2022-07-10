@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use ncurses::*;
+use rand::{thread_rng, Rng};
 use core::panic;
 use std::process::exit;
 use std::io::prelude::*;
@@ -232,6 +233,11 @@ fn draw_wins(base_type: i32, objects: &mut NcursesObjects) {
     }
 
     draw_base(objects.base_win.expect("could not get base_win"), base_type);
+}
+
+fn roll(dice: &mut i32, m: i32) {
+    let mut rng = thread_rng();
+    *dice = rng.gen_range(0..m);
 }
 
 fn main() {

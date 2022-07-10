@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 ncurses = { version = "5.101.0", features = ["panel"] }
+rand = "0.8.5"
