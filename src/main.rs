@@ -19,7 +19,7 @@ enum BranchType {
 struct Config {
     live: i32,
     infinite: i32,
-    screensaver: i32,
+    screensaver: bool,
     print_tree: i32,
     verbosity: i32,
     life_start: i32,
@@ -240,11 +240,19 @@ fn roll(dice: &mut i32, m: i32) {
     *dice = rng.gen_range(0..m);
 }
 
+fn check_key_press(conf: &Config, my_counters: &Counters) -> bool {
+    if conf.screensaver && wgetch(stdscr()) != ERR || (wgetch(stdscr()) == 'q' as i32) {
+        finish(conf, my_counters);
+        return true;
+    }
+    false
+}
+
 fn main() {
     let mut conf = Config {
         live: 0,
         infinite: 0,
-        screensaver: 0,
+        screensaver: false,
         print_tree: 0,
         verbosity: 0,
         life_start: 32,
