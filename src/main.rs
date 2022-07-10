@@ -185,6 +185,51 @@ fn draw_base(base_win: WINDOW, base_type: i32) {
     }
 }
 
+fn draw_wins(base_type: i32, objects: &mut NcursesObjects) {
+    let mut base_width = 0;
+    let mut base_height = 0;
+    let mut rows = 0;
+    let mut cols = 0;
+
+    match base_type {
+        1 => {
+            base_width = 31;
+            base_height = 4;
+        },
+        2=> {
+            base_width = 15;
+            base_height = 3;
+        },
+        _ => ()
+    }
+
+    getmaxyx(stdscr(), &mut rows, &mut cols);
+    let base_origin_y = rows - base_height;
+    let base_origin_x = (cols / 2) - (base_width / 2);
+
+    objects.base_win = newwin(base_height, base_width, base_origin_y, base_origin_x);
+    objects.tree_win = newwin(rows - base_height, cols, 0, 0);
+
+    // these if statments error, in the c program
+    // the objects struct is initialized with NULL fields
+    // will probably have to wrap fields with Option<> and
+    // check for None here
+
+    if objects.base_panel {
+        replace_panel(objects.base_panel, objects.base_win);
+    } else {
+        objects.base_panel = new_panel(objects.base_win);
+    }
+
+    if objects.tree_panel {
+        replace_panel(objects.tree_panel, objects.tree_win);
+    } else {
+        objects.tree_panel = new_panel(objects.tree_win);
+    }
+
+    draw_base(objects.base_win, base_type);
+}
+
 fn main() {
     let mut conf = Config {
         live: 0,
