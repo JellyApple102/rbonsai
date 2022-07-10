@@ -211,11 +211,6 @@ fn draw_wins(base_type: i32, objects: &mut NcursesObjects) {
     objects.base_win = Some(newwin(base_height, base_width, base_origin_y, base_origin_x));
     objects.tree_win = Some(newwin(rows - base_height, cols, 0, 0));
 
-    // these if statments error, in the c program
-    // the objects struct is initialized with NULL fields
-    // will probably have to wrap fields with Option<> and
-    // check for None here
-
     if objects.base_panel != None {
         let p = objects.base_panel.expect("could not get base_panel");
         let w = objects.base_win.expect("could not get base_win");
