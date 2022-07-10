@@ -40,15 +40,15 @@ struct Config {
 }
 
 struct NcursesObjects {
-    base_win: WINDOW,
-    tree_win: WINDOW,
-    message_border_win: WINDOW,
-    message_win: WINDOW,
+    base_win: Option<WINDOW>,
+    tree_win: Option<WINDOW>,
+    message_border_win: Option<WINDOW>,
+    message_win: Option<WINDOW>,
 
-    base_panel: PANEL,
-    tree_panel: PANEL,
-    message_border_panel: PANEL,
-    message_panel: PANEL
+    base_panel: Option<PANEL>,
+    tree_panel: Option<PANEL>,
+    message_border_panel: Option<PANEL>,
+    message_panel: Option<PANEL>
 }
 
 struct Counters {
@@ -59,15 +59,15 @@ struct Counters {
 
 #[allow(unused_variables)]
 fn quit(conf: &Config, objects: &NcursesObjects, return_code: i32) {
-    del_panel(objects.base_panel);
-    del_panel(objects.tree_panel);
-    del_panel(objects.message_border_panel);
-    del_panel(objects.message_panel);
+    del_panel(objects.base_panel.expect("could not get base_panel"));
+    del_panel(objects.tree_panel.expect("could not get tree_panel"));
+    del_panel(objects.message_border_panel.expect("could not get message_border_panel"));
+    del_panel(objects.message_panel.expect("could not get message_panel"));
 
-    delwin(objects.base_win);
-    delwin(objects.tree_win);
-    delwin(objects.message_border_win);
-    delwin(objects.message_win);
+    delwin(objects.base_win.expect("could not get base_win"));
+    delwin(objects.tree_win.expect("could not get tree_win"));
+    delwin(objects.message_border_win.expect("could not get message_border_win"));
+    delwin(objects.message_win.expect("could not get message_win"));
 
     // free conf.save_file and conf.load_file
 
@@ -207,27 +207,31 @@ fn draw_wins(base_type: i32, objects: &mut NcursesObjects) {
     let base_origin_y = rows - base_height;
     let base_origin_x = (cols / 2) - (base_width / 2);
 
-    objects.base_win = newwin(base_height, base_width, base_origin_y, base_origin_x);
-    objects.tree_win = newwin(rows - base_height, cols, 0, 0);
+    objects.base_win = Some(newwin(base_height, base_width, base_origin_y, base_origin_x));
+    objects.tree_win = Some(newwin(rows - base_height, cols, 0, 0));
 
     // these if statments error, in the c program
     // the objects struct is initialized with NULL fields
     // will probably have to wrap fields with Option<> and
     // check for None here
 
-    if objects.base_panel {
-        replace_panel(objects.base_panel, objects.base_win);
+    if objects.base_panel != None {
+        let p = objects.base_panel.expect("could not get base_panel");
+        let w = objects.base_win.expect("could not get base_win");
+        replace_panel(p, w);
     } else {
-        objects.base_panel = new_panel(objects.base_win);
+        objects.base_panel = Some(new_panel(objects.base_win.expect("could not get base_win")));
     }
 
-    if objects.tree_panel {
-        replace_panel(objects.tree_panel, objects.tree_win);
+    if objects.tree_panel != None {
+        let p = objects.tree_panel.expect("could not get tree_panel");
+        let w = objects.tree_win.expect("could not get tree_win");
+        replace_panel(p, w);
     } else {
-        objects.tree_panel = new_panel(objects.tree_win);
+        objects.tree_panel = Some(new_panel(objects.tree_win.expect("could not get tree_win")));
     }
 
-    draw_base(objects.base_win, base_type);
+    draw_base(objects.base_win.expect("could not get base_win"), base_type);
 }
 
 fn main() {
