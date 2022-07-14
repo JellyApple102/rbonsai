@@ -281,6 +281,86 @@ fn choose_color(b_type: BranchType, tree_win: WINDOW) {
     }
 }
 
+fn set_deltas(b_type: BranchType, life: i32, age: i32, multiplier: i32, return_dx: &mut i32, return_dy: &mut i32) {
+    let mut dx: i32 = 0;
+    let mut dy: i32 = 0;
+    let mut dice: i32 = 0;
+
+    let mut rng = thread_rng();
+
+    match b_type {
+        BranchType::Trunk => {
+            if age <= 2 || life < 4 {
+                dy = 0;
+                dx = rng.gen_range(0..3) - 1;
+            } else if age < multiplier * 3 {
+                if age % (multiplier * 0.5 as i32) == 0 { dy = -1; } else { dy = 0; }
+
+                roll(&mut dice, 10);
+                if dice == 0 { dx = -2; }
+                else if (1..=3).contains(&dice) { dx = -1; }
+                else if (4..=5).contains(&dice) { dx = 0; }
+                else if (6..=8).contains(&dice) { dx = 1; }
+                else if dice == 9 { dx = 2; }
+            } else {
+                roll(&mut dice, 10);
+                if dice > 2 { dy = -1; }
+                else { dy = 0; }
+                dx = rng.gen_range(0..3) - 1;
+            }
+        },
+        BranchType::ShootLeft => {
+            roll(&mut dice, 10);
+            if (0..=1).contains(&dice) { dy = -1; }
+            else if (2..=7).contains(&dice) { dy = 0; }
+            else if (8..=9).contains(&dice) { dy = 1; }
+
+            roll(&mut dice, 10);
+            if (0..=1).contains(&dice) { dx = -2; }
+            else if (2..=5).contains(&dice) { dx = -1; }
+            else if (6..=8).contains(&dice) { dx = 0; }
+            else if dice == 9 { dx = 1; }
+        },
+        BranchType::ShootRight => {
+            roll(&mut dice, 10);
+            if (0..=1).contains(&dice) { dy = -1; }
+            else if (2..=7).contains(&dice) { dy = 0; }
+            else if (8..=9).contains(&dice) { dy = 1; }
+
+            roll(&mut dice, 10);
+            if (0..=1).contains(&dice) { dx = 2; }
+            else if (2..=5).contains(&dice) { dx = 1; }
+            else if (6..=8).contains(&dice) { dx = 0; }
+            else if dice == 9 { dx = -1; }
+        },
+        BranchType::Dying => {
+            roll(&mut dice, 10);
+            if (0..=1).contains(&dice) { dy = -1; }
+            else if (2..=8).contains(&dice) { dy = 0; }
+            else if dice == 9 { dy = 1; }
+
+            roll(&mut dice, 15);
+            if dice == 0 { dx = -3; }
+            else if (1..=2).contains(&dice) { dx = -2; }
+            else if (3..=5).contains(&dice) { dx = -1; }
+            else if (6..=8).contains(&dice) { dx = 0; }
+            else if (9..=11).contains(&dice) { dx = 1; }
+            else if (12..=13).contains(&dice) { dx = 2; }
+            else if dice == 14 { dx = 3; }
+        },
+        BranchType::Dead => {
+            roll(&mut dice, 10);
+            if (0..=2).contains(&dice) { dy = -1; }
+            else if (3..=6).contains(&dice) { dy = 0; }
+            else if (7..=9).contains(&dice) { dy = 1; }
+            dx = rng.gen_range(0..3) - 1;
+        }
+    }
+
+    *return_dx = dx;
+    *return_dy = dy;
+}
+
 fn main() {
     let mut conf = Config {
         live: 0,
