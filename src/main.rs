@@ -7,6 +7,8 @@ use std::process::exit;
 use std::io::prelude::*;
 use std::path::Path;
 use std::fs::File;
+use std::thread;
+use std::time::Duration;
 
 enum BranchType {
     Trunk,
@@ -241,6 +243,14 @@ fn check_key_press(conf: &Config, my_counters: &Counters) -> bool {
         return true;
     }
     false
+}
+
+fn update_screen(time_step: f32) {
+    update_panels();
+    doupdate();
+
+    let dur = Duration::from_secs_f32(time_step);
+    thread::sleep(dur);
 }
 
 fn main() {
