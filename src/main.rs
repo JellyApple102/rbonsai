@@ -253,6 +253,34 @@ fn update_screen(time_step: f32) {
     thread::sleep(dur);
 }
 
+fn choose_color(b_type: BranchType, tree_win: WINDOW) {
+    let mut rng = thread_rng();
+
+    match b_type {
+        BranchType::Trunk | BranchType::ShootLeft | BranchType::ShootRight => {
+            if rng.gen_range(0..2) == 0 {
+                wattron(tree_win, A_BOLD() | COLOR_PAIR(11));
+            } else {
+                wattron(tree_win, COLOR_PAIR(3));
+            }
+        },
+        BranchType::Dying => {
+            if rng.gen_range(0..10) == 0 {
+                wattron(tree_win, A_BOLD() | COLOR_PAIR(2));
+            } else {
+                wattron(tree_win, COLOR_PAIR(2));
+            }
+        },
+        BranchType::Dead => {
+            if rng.gen_range(0..3) == 0 {
+                wattron(tree_win, A_BOLD() | COLOR_PAIR(10));
+            } else {
+                wattron(tree_win, COLOR_PAIR(10));
+            }
+        }
+    }
+}
+
 fn main() {
     let mut conf = Config {
         live: 0,
