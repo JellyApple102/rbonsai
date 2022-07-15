@@ -361,6 +361,50 @@ fn set_deltas(b_type: BranchType, life: i32, age: i32, multiplier: i32, return_d
     *return_dy = dy;
 }
 
+fn choose_string(conf: &Config, mut b_type: BranchType, life: i32, dx: i32, dy: i32) -> String {
+    const MAX_STR_LEN: usize = 32;
+    let mut branch_str: String = String::with_capacity(MAX_STR_LEN);
+
+    branch_str.push('?');
+    if life < 4 { b_type = BranchType::Dying };
+
+    match b_type {
+        BranchType::Trunk => {
+            if dy == 0 { branch_str = "/~".to_string(); }
+            else if dx < 0 { branch_str = "\\|".to_string(); }
+            else if dx == 0 { branch_str = "/|\\".to_string(); }
+            else if dx > 0 { branch_str = "|/".to_string(); }
+        },
+        BranchType::ShootLeft => {
+            if dy > 0 { branch_str = "\\".to_string(); }
+            else if dy == 0 { branch_str = "\\_".to_string(); }
+            else if dx < 0 { branch_str = "\\|".to_string(); }
+            else if dx == 0 { branch_str = "/|".to_string(); }
+            else if dx > 0 { branch_str = "/".to_string(); }
+        },
+        BranchType::ShootRight => {
+            if dy > 0 { branch_str = "/".to_string(); }
+            else if dy == 0 { branch_str = "_/".to_string(); }
+            else if dx < 0 { branch_str = "\\|".to_string(); }
+            else if dx == 0 { branch_str = "/|".to_string(); }
+            else if dx > 0 { branch_str = "/".to_string(); }
+        },
+        BranchType::Dying | BranchType::Dead => {
+            let mut rng = thread_rng();
+
+            branch_str.clear();
+            let i: i32 = rng.gen_range(0..conf.leaves_size); // does this emulate the og?
+            let c: char = conf.leaves[i as usize];
+
+            for _ in 0..MAX_STR_LEN {
+                branch_str.push(c);
+            }
+        }
+    }
+
+    branch_str
+}
+
 fn main() {
     let mut conf = Config {
         live: 0,
