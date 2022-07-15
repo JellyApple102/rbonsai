@@ -9,7 +9,9 @@ use std::path::Path;
 use std::fs::File;
 use std::thread;
 use std::time::Duration;
+use std::fmt;
 
+#[derive(PartialEq, Clone, Copy)]
 enum BranchType {
     Trunk,
     ShootLeft,
@@ -18,8 +20,33 @@ enum BranchType {
     Dead
 }
 
+impl BranchType {
+    fn from_i32(value: i32) -> BranchType {
+        match value {
+            0 => BranchType::Trunk,
+            1 => BranchType::ShootLeft,
+            2 => BranchType::ShootRight,
+            3 => BranchType::Dying,
+            4 => BranchType::Dead,
+            _ => panic!("invalid branch i32 conversion"),
+        }
+    }
+}
+
+impl fmt::Display for BranchType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self {
+            BranchType::Trunk => write!(f, "Trunk"),
+            BranchType::ShootLeft => write!(f, "ShootLeft"),
+            BranchType::ShootRight => write!(f, "ShootRight"),
+            BranchType::Dying => write!(f, "Dying"),
+            BranchType::Dead => write!(f, "Dead"),
+        }
+    }
+}
+
 struct Config {
-    live: i32,
+    live: bool,
     infinite: i32,
     screensaver: bool,
     print_tree: i32,
@@ -405,9 +432,84 @@ fn choose_string(conf: &Config, mut b_type: BranchType, life: i32, dx: i32, dy: 
     branch_str
 }
 
+fn branch(conf: &Config, objects: &NcursesObjects, my_counters: &mut Counters, mut y: i32, mut x: i32, b_type: BranchType, mut life: i32) {
+    my_counters.branches += 1;
+    let mut dx: i32 = 0;
+    let mut dy: i32 = 0;
+    let mut age: i32 = 0;
+    let mut shoot_cooldown: i32 = conf.multiplier;
+
+    let mut rng = thread_rng();
+
+    while life > 0 {
+        if check_key_press(conf, my_counters) {
+            quit(conf, objects, 0);
+        }
+
+        life -= 1;
+        age = conf.life_start - life;
+
+        set_deltas(b_type, life, age, conf.multiplier, &mut dx, &mut dy);
+
+        let max_y: i32 = getmaxy(objects.tree_win.unwrap());
+        if dy > 0 && y > (max_y - 2) { dy -= 1; }
+
+        if life < 3 {
+            branch(conf, objects, my_counters, y, x, BranchType::Dead, life)
+        } else if (b_type == BranchType::Trunk || b_type == BranchType::ShootLeft || b_type == BranchType::ShootRight) && life < (conf.multiplier + 2) {
+            branch(conf, objects, my_counters, y, x, BranchType::Dying, life);
+        } else if (b_type == BranchType::Trunk && rng.gen_range(0..3) == 0) || (life % conf.multiplier == 0) {
+            if rng.gen_range(0..8) == 0 && life > 7 {
+                shoot_cooldown = conf.multiplier * 2;
+                branch(conf, objects, my_counters, y, x, BranchType::Trunk, life + rng.gen_range(0..5) - 2);
+            } else if shoot_cooldown <= 0 {
+                shoot_cooldown = conf.multiplier * 2;
+
+                let shoot_life: i32 = life + conf.multiplier;
+
+                my_counters.shoots += 1;
+                my_counters.shoot_counter += 1;
+                if conf.verbosity > 0 {
+                    mvwprintw(objects.tree_win.unwrap(), 4, 5, format!("shoots: {}", my_counters.shoots).as_str());
+                }
+
+                branch(conf, objects, my_counters, y, x, BranchType::from_i32((my_counters.shoot_counter % 2) + 1), shoot_life);
+            }
+        }
+        shoot_cooldown -= 1;
+
+        if conf.verbosity > 0 {
+            mvwprintw(objects.tree_win.unwrap(), 5, 5, format!("dx: {}", dx).as_str());
+            mvwprintw(objects.tree_win.unwrap(), 6, 5, format!("dy: {}", dy).as_str());
+            mvwprintw(objects.tree_win.unwrap(), 7, 5, format!("type: {}", b_type).as_str());
+            mvwprintw(objects.tree_win.unwrap(), 8, 5, format!("dx: {}", dx).as_str());
+        }
+
+        x += dx;
+        y += dy;
+
+        choose_color(b_type, objects.tree_win.unwrap());
+
+        let branch_str: String = choose_string(conf, b_type, life, dx, dy);
+
+        // i do not think i need to do anything with wide characters,
+        // i think rust handles unicode stuff better by default than C
+        //
+        // i could be (probably am) wrong but thats a problem for another time
+
+        mvwprintw(objects.tree_win.unwrap(), y, x, branch_str.as_str());
+
+        wattroff(objects.tree_win.unwrap(), A_BOLD());
+
+        if conf.live && !(conf.load && my_counters.branches < conf.target_branch_count) {
+            update_screen(conf.time_step);
+        }
+    }
+}
+
 fn main() {
     let mut conf = Config {
-        live: 0,
+        live: false,
         infinite: 0,
         screensaver: false,
         print_tree: 0,
