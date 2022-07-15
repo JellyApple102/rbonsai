@@ -432,6 +432,7 @@ fn choose_string(conf: &Config, mut b_type: BranchType, life: i32, dx: i32, dy: 
     branch_str
 }
 
+#[allow(unused_assignments)] // 'age is assigned but not used' warning
 fn branch(conf: &Config, objects: &NcursesObjects, my_counters: &mut Counters, mut y: i32, mut x: i32, b_type: BranchType, mut life: i32) {
     my_counters.branches += 1;
     let mut dx: i32 = 0;
@@ -503,6 +504,15 @@ fn branch(conf: &Config, objects: &NcursesObjects, my_counters: &mut Counters, m
 
         if conf.live && !(conf.load && my_counters.branches < conf.target_branch_count) {
             update_screen(conf.time_step);
+        }
+    }
+}
+
+fn add_spaces(message_win: WINDOW, count: i32, line_position: &mut i32, max_width: i32) {
+    if *line_position < (max_width - count) {
+        for _ in 0..count {
+            wprintw(message_win, " ");
+            *line_position += 1;
         }
     }
 }
