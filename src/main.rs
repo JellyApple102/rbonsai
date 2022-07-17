@@ -429,6 +429,7 @@ fn choose_string(conf: &Config, mut b_type: BranchType, life: i32, dx: i32, dy: 
         }
     }
 
+    branch_str.shrink_to_fit();
     branch_str
 }
 
@@ -514,6 +515,41 @@ fn add_spaces(message_win: WINDOW, count: i32, line_position: &mut i32, max_widt
             wprintw(message_win, " ");
             *line_position += 1;
         }
+    }
+}
+
+fn create_message_windows(objects: &mut NcursesObjects, message: &str) {
+    let mut max_y: i32 = 0;
+    let mut max_x: i32 = 0;
+    getmaxyx(stdscr(), &mut max_y, &mut max_x);
+
+    let box_width: i32;
+    let box_height: i32;
+
+    if (message.len() + 3) as f32 <= (0.25 * max_x as f32) {
+        box_width = (message.len() + 1) as i32;
+        box_height = 1;
+    } else {
+        box_width = (0.25 * max_x as f32) as i32;
+        box_height = (message.len() as i32 / box_width) + (message.len() as i32 / box_width);
+    }
+
+    objects.message_border_win = Some(newwin(box_height + 2, box_width + 4, (max_y as f32 * 0.7) as i32 - 1, (max_x as f32 * 0.7) as i32 - 2));
+    objects.message_win = Some(newwin(box_height, box_width + 1, (max_y as f32 * 0.7) as i32, (max_x as f32 * 0.7) as i32));
+
+    wattron(objects.message_border_win.unwrap(), COLOR_PAIR(8) | A_BOLD());
+    wborder(objects.message_border_win.unwrap(), '|' as u32, '|' as u32, '-' as u32, '-' as u32, '+' as u32, '+' as u32, '+' as u32, '+' as u32);
+
+    if objects.message_border_panel.is_some() {
+        replace_panel(objects.message_border_panel.unwrap(), objects.message_border_win.unwrap());
+    } else {
+        objects.message_border_panel = Some(new_panel(objects.message_border_win.unwrap()));
+    }
+
+    if objects.message_panel.is_some() {
+        replace_panel(objects.message_panel.unwrap(), objects.message_win.unwrap());
+    } else {
+        objects.message_panel = Some(new_panel(objects.message_win.unwrap()));
     }
 }
 
